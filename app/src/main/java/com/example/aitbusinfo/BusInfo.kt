@@ -106,8 +106,8 @@ fun getTodayTimetable(): daiyaData {
     // val month: Int = LocalDate.now().dayOfMonth
 
     //　今日の日付をYYYY-MM-DDの形式で取得
-    val today = "2020-6-18"
-//    val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    // val today = "2020-6-18"
+    val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
     // 時刻表データを定義(JSON形式)
     val A1Map = mapOf(0 to null, 1 to null, 2 to null, 3 to null, 4 to null, 5 to null, 6 to null, 7 to null, 8 to listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55), 9 to listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 50, 55), 10 to listOf(0, 5, 10, 15, 20, 25, 30, 35, 45, 55), 11 to listOf(5, 15, 25, 35, 45, 55), 12 to listOf(5, 15, 25, 35, 45, 55), 13 to listOf(5, 20, 35, 50), 14 to listOf(5, 15, 25, 35, 45, 55), 15 to listOf(5, 15, 30, 45), 16 to listOf(0, 15, 30, 45), 17 to listOf(0, 15, 30, 45), 18 to listOf(0, 15, 45), 19 to listOf(0, 15, 30, 45), 20 to listOf(0, 30), 21 to listOf(0), 22 to null, 23 to null)
