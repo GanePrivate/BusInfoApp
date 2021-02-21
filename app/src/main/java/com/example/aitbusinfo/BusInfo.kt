@@ -1,15 +1,38 @@
 package com.example.aitbusinfo
 
+import android.util.Log
+import android.widget.TextView
+import com.google.android.material.tabs.TabLayout
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
 data class daiyaData(
-    val toDaigaku: Map<Int, List<Int>?>,
-    val toYakusa:  Map<Int, List<Int>?>,
-    val toDaigakuFirst: Int,
-    val toYakusaFirst: Int
+        val daiya: String?,
+        val toDaigaku: Map<Int, List<Int>?>,
+        val toYakusa:  Map<Int, List<Int>?>,
+        val toDaigakuFirst: Int,
+        val toYakusaFirst: Int
+)
+
+data class NextInfo(
+        val minutes: Int,
+        val hour: Int,
+        val flag: Boolean
+)
+
+data class AfterNextInfo(
+        val minutes: Int,
+        val hour: Int
+)
+
+data class ReturnData(
+        val todayInfo: daiyaData,
+        val toDaigakuInfo: NextInfo,
+        val toYakusaInfo: NextInfo,
+        val toDaigakuAfterNext: AfterNextInfo,
+        val toYakusaAfterNext: AfterNextInfo
 )
 
 
@@ -81,6 +104,7 @@ fun getTodayTimetable(): daiyaData {
     // val month: Int = LocalDate.now().dayOfMonth
 
     //　今日の日付をYYYY-MM-DDの形式で取得
+    //val today = "2020-6-18"
     val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
     // 時刻表データを定義(JSON形式)
@@ -103,19 +127,19 @@ fun getTodayTimetable(): daiyaData {
 //    var toYakusaFirst =      // 最初の八草行きの出発時間(分)を入れる変数
 
     when (daiya) {
-        "A" -> return daiyaData(A1Map, A2Map, 0, 20)
+        "A" -> return daiyaData(daiya, A1Map, A2Map, 0, 20)
 
-        "B" -> return daiyaData(B1Map, B2Map, 0, 50)
+        "B" -> return daiyaData(daiya, B1Map, B2Map, 0, 50)
 
-        "C" -> return daiyaData(C1Map, C2Map, 10, 50)
+        "C" -> return daiyaData(daiya, C1Map, C2Map, 10, 50)
     }
 
     // ABCのどのダイヤでもない時!!!
-    return daiyaData(mapOf(0 to null), mapOf(0 to null), 0, 0)
+    return daiyaData(null, mapOf(0 to null), mapOf(0 to null), 0, 0)
 }
 
 
-fun getNextMin(timeTable: Map<Int, List<Int>?>, hour: Int): Triple<Int, Int, Boolean> {
+fun getNextMin(timeTable: Map<Int, List<Int>?>, hour: Int): NextInfo {
     /*
     次の出発時間を調べる関数
     :param timeTable:   # array:時刻表(分)の配列データ
@@ -128,14 +152,16 @@ fun getNextMin(timeTable: Map<Int, List<Int>?>, hour: Int): Triple<Int, Int, Boo
     var result: Int = getNearVal(timeTable[hour], mode = 0)
 
     return if (result == -1) {
-        Triple(getNearVal(timeTable[hour + 1], mode = 1), hour+1, true)
+        // Triple(getNearVal(timeTable[hour + 1], mode = 1), hour+1, true)
+        NextInfo(getNearVal(timeTable[hour + 1], mode = 1), hour+1, true)
     }else {
-        Triple(result, hour, false)
+        // Triple(result, hour, false)
+        NextInfo(result, hour, false)
     }
 }
 
 
-fun getAfterNextMin(flag: Boolean, timeTable: Map<Int, List<Int>?>, hour: Int, hour2: Int): Pair<Int, Int> {
+fun getAfterNextMin(flag: Boolean, timeTable: Map<Int, List<Int>?>, hour: Int, hour2: Int): AfterNextInfo {
     /*
     次の次の出発時間を調べる関数
     :param flag:        # 現在時間に+1されたかのフラグ
@@ -147,21 +173,44 @@ fun getAfterNextMin(flag: Boolean, timeTable: Map<Int, List<Int>?>, hour: Int, h
     */
 
     var result: Int
-    var retHour: Int = 0
+    var retHour: Int = hour2
 
     if (!flag) {
         result = getNearVal(timeTable[hour], mode = 3)
         if (result == -1) {
             result = getNearVal(timeTable[hour + 1], mode = 1)
-            retHour = hour+1
+            retHour += 1
         }
     } else {
         result = getNearVal(timeTable[hour + 1], mode = 3, reset = true);
-        retHour = hour2+1
+        retHour += 1
         if (result == -1) {
             result = getNearVal(timeTable[hour + 2], mode = 1)
             retHour += 1
         }
     }
-    return Pair(result, retHour)
+    return AfterNextInfo(result, retHour)
+}
+
+
+fun getAllData(): ReturnData {
+    val todayInfo = getTodayTimetable()     // 今日の運行時刻表を取得(バスが無い日はnull, null, 0, 0が返ってくる)
+    val hour: Int = LocalTime.now().hour  // 現在の時間(hour)を取得
+    Log.v("テスト", "これはメッセージです「" + hour + "」終わり");
+
+    //　大学行きの次のバスの出発時間を調べる(-1が帰ってきた場合はその時間のバスはもう無い)
+    val toDaigakuInfo = getNextMin(todayInfo.toDaigaku, hour)
+    var resultHour1_1 = hour
+
+    //　八草行きの次のバスの出発時間を調べる(-1が帰ってきた場合はその時間のバスはもう無い)
+    val toYakusaInfo = getNextMin(todayInfo.toYakusa, hour)
+    var resultHour2_1 = hour
+
+    // 次の次のバスの出発時刻を調べる(大学行き)
+    val toDaigakuAfterNext = getAfterNextMin(toDaigakuInfo.flag, todayInfo.toDaigaku, hour, resultHour1_1)
+
+    // 次の次のバスの出発時刻を調べる(八草行き)
+    val toYakusaAfterNext = getAfterNextMin(toYakusaInfo.flag, todayInfo.toYakusa, hour, resultHour2_1)
+
+    return ReturnData(todayInfo, toDaigakuInfo, toYakusaInfo, toDaigakuAfterNext, toYakusaAfterNext)
 }

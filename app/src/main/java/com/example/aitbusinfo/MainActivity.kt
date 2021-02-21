@@ -2,6 +2,7 @@ package com.example.aitbusinfo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
@@ -16,6 +17,40 @@ class MainActivity : AppCompatActivity() {
         // TabLayoutの取得
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
 
+        // 今日のバスの運行情報を取得
+        val busInfo= getAllData()
+
+        // 結果を表示するエリアのViewを取得
+        val nextTimeView: TextView = findViewById(R.id.textView2)
+        val label1: TextView = findViewById(R.id.textView3)
+        val label2: TextView = findViewById(R.id.textView6)
+        val afterNextView: TextView = findViewById(R.id.textView4)
+        val daiyaView: TextView = findViewById(R.id.textView7)
+
+        // 今日バスの運行があるか確認する
+        if (busInfo.todayInfo.daiya == null) {
+            nextTimeView.text = "本日、バスの運行は\nありません"
+            afterNextView.visibility = View.INVISIBLE
+            daiyaView.visibility = View.INVISIBLE
+            label1.visibility = View.INVISIBLE
+            label2.visibility = View.INVISIBLE
+        }else{
+            // 次の出発時刻を表示する
+            if (busInfo.toDaigakuInfo.minutes != -1) {
+                nextTimeView.text = "${busInfo.toDaigakuInfo.hour}:${busInfo.toDaigakuInfo.minutes}"
+            } else {
+                nextTimeView.text = if (LocalTime.now().minute <= 7) "[始発] 08:${busInfo.todayInfo.toDaigakuFirst}" else "本日の運行は終了しました"
+            }
+
+            // 次の次の出発時間を表示する
+            if (busInfo.toDaigakuAfterNext.minutes != -1) {
+                afterNextView.text = "${busInfo.toDaigakuAfterNext.hour}:${busInfo.toDaigakuAfterNext.minutes}"
+            }
+
+            // 今日の運行ダイヤを表示する
+            daiyaView.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
+        }
+
         // OnTabSelectedListenerの実装
         tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
 
@@ -23,26 +58,65 @@ class MainActivity : AppCompatActivity() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 Toast.makeText(this@MainActivity, tab.text, Toast.LENGTH_SHORT).show()
 
-                val todayInfo = getTodayTimetable()     // 今日の運行時刻表を取得(バスが無い日はnull, null, 0, 0が返ってくる)
-                val hour: Int = LocalTime.now().minute  // 現在の時間(hour)を取得
+                // 今日のバスの運行情報を取得
+                val busInfo= getAllData()
 
-                //　大学行きの次のバスの出発時間を調べる(-1が帰ってきた場合はその時間のバスはもう無い)
-                val toDaigakuInfo = getNextMin(todayInfo.toDaigaku, hour)
-                var resultHour1_1 = hour
+                // 結果を表示するエリアのViewを取得
+                val nextTimeView: TextView = findViewById(R.id.textView2)
+                val label1: TextView = findViewById(R.id.textView3)
+                val label2: TextView = findViewById(R.id.textView6)
+                val afterNextView: TextView = findViewById(R.id.textView4)
+                val daiyaView: TextView = findViewById(R.id.textView7)
 
-                //　八草行きの次のバスの出発時間を調べる(-1が帰ってきた場合はその時間のバスはもう無い)
-                val toYakusaInfo = getNextMin(todayInfo.toYakusa, hour);
-                var resultHour2_1 = hour
+                if (tab.text == "大学→八草") {
+                    // 今日バスの運行があるか確認する
+                    if (busInfo.todayInfo.daiya == null) {
+                        nextTimeView.text = "本日、バスの運行は\nありません"
+                        afterNextView.visibility = View.INVISIBLE
+                        daiyaView.visibility = View.INVISIBLE
+                        label1.visibility = View.INVISIBLE
+                        label2.visibility = View.INVISIBLE
+                    } else {
+                        // 次の出発時刻を表示する
+                        if (busInfo.toYakusaInfo.minutes != -1) {
+                            nextTimeView.text = "${busInfo.toYakusaInfo.hour}:${busInfo.toYakusaInfo.minutes}"
+                        } else {
+                            nextTimeView.text = if (LocalTime.now().minute <= 7) "[始発] 08:${busInfo.todayInfo.toYakusaFirst}" else "本日の運行は終了しました"
+                        }
 
-                // 次の次のバスの出発時刻を調べる(大学行き)
-                var toDaigakuAfterNext = getAfterNextMin(toDaigakuInfo.third, todayInfo.toDaigaku, hour, resultHour1_1)
+                        // 次の次の出発時間を表示する
+                        if (busInfo.toYakusaAfterNext.minutes != -1) {
+                            afterNextView.text = "${busInfo.toYakusaAfterNext.hour}:${busInfo.toYakusaAfterNext.minutes}"
+                        }
 
-                // 次の次のバスの出発時刻を調べる(八草行き)
-                var toYakusaAfterNext = getAfterNextMin(toYakusaInfo.third, todayInfo.toYakusa, hour, resultHour2_1)
+                        // 今日の運行ダイヤを表示する
+                        daiyaView.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
+                    }
+                }else{
+                    // 今日バスの運行があるか確認する
+                    if (busInfo.todayInfo.daiya == null) {
+                        nextTimeView.text = "本日、バスの運行は\nありません"
+                        afterNextView.visibility = View.INVISIBLE
+                        daiyaView.visibility = View.INVISIBLE
+                        label1.visibility = View.INVISIBLE
+                        label2.visibility = View.INVISIBLE
+                    }else{
+                        // 次の出発時刻を表示する
+                        if (busInfo.toDaigakuInfo.minutes != -1) {
+                            nextTimeView.text = "${busInfo.toDaigakuInfo.hour}:${busInfo.toDaigakuInfo.minutes}"
+                        } else {
+                            nextTimeView.text = if (LocalTime.now().minute <= 7) "[始発] 08:${busInfo.todayInfo.toDaigakuFirst}" else "本日の運行は終了しました"
+                        }
 
-                val messageView: TextView = findViewById(R.id.info)
-                messageView.text = "${toDaigakuInfo}\n"
+                        // 次の次の出発時間を表示する
+                        if (busInfo.toDaigakuAfterNext.minutes != -1) {
+                            afterNextView.text = "${busInfo.toDaigakuAfterNext.hour}:${busInfo.toDaigakuAfterNext.minutes}"
+                        }
 
+                        // 今日の運行ダイヤを表示する
+                        daiyaView.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
+                    }
+                }
             }
 
             // タブが未選択になった際に呼ばれる
