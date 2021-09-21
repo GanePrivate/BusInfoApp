@@ -2,39 +2,42 @@ name: Android CI
 
 on:
   push:
-    tags: '*ver.*'
+    branches:
+      - master
+    tags:
+      - 'ver.*'
 
 jobs:
-  build:
-
-    name: Build APK # GitHub上で識別しやすいのでジョブの名前をつけておく
-
+  test:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out
-        uses: actions/checkout@v2
-      - name: Set up JDK
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup JDK
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Build with Gradle
-        run: |
-          # 今回は、Secrets が設定されいなければ署名なしのapkファイルが作成されるよう判定処理をいれています。
-          # 確実に署名させたいのであれば、判定処理を外すことで署名エラーとしてしまってもよいと思います。
-          if [[ -n "${{ secrets.KEYSTORE_BASE64 }}" ]]; then
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-            export KEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}"
-            export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
-            export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
-          fi
-          ./gradlew assembleRelease
-      - name: Get apk path
-        id: apk-path
-        run: |
-          path=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
-          echo "::set-output name=path::$path"
-
+      - name: Run Tests
+        run: bash ./gradlew test --stacktrace  
+  apk:
+    name: Generate APK
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build APK
+        run: bash ./gradlew assembleDebug --stacktrace
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
+        with:
+          name: apk
+          path: app/build/outputs/apk/debug/app-debug.apk 
   release:
     name: Release APK
     needs: apk
@@ -63,10 +66,3 @@ jobs:
           asset_path: apk/app-debug.apk
           asset_name: AIT-BusApp.apk
           asset_content_type: application/zip
-
-      # 今回は artifact へ apk ファイルをアップロードし、ワークフローの結果画面がらダウンロードできるようにします。
-      # - name: Upload apk file
-      #   uses: actions/upload-artifact@v1
-      #   with:
-      #     name: apk
-      #     path: ${{ steps.apk-path.outputs.path }}
