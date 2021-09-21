@@ -2,4 +2,4 @@
 
 ### アプリのインストール方法
 以下のURLから `AIT-BusApp.apk` をダウンロードしてください．
-https://github.com/GanePrivate/BusInfoApp/releases．
+https://github.com/GanePrivate/BusInfoApp/releases
