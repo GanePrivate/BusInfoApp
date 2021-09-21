@@ -40,7 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         with:
-          upload_url: ${{ steps.apk-path.outputs.upload_url }}
+          upload_url: ${{ steps.apk-path.outputs.path }}
           asset_path: apk/app-debug.apk
           asset_name: AIT-BusApp.apk
           asset_content_type: application/zip
