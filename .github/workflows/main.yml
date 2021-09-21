@@ -34,16 +34,36 @@ jobs:
         run: |
           path=$(find **/build/outputs/apk -name '*.apk' -type f | head -1)
           echo "::set-output name=path::$path"
-      - name: Upload Release APK
-        id: upload_release_asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        with:
-          upload_url: ${{ steps.apk-path.outputs.path }}
-          asset_path: apk/app-debug.apk
-          asset_name: AIT-BusApp.apk
-          asset_content_type: application/zip
+
+  release:
+  name: Release APK
+  needs: apk
+  if: startsWith(github.ref, 'refs/tags/v')
+  runs-on: ubuntu-latest
+  steps:
+    - name: Download APK from build
+      uses: actions/download-artifact@v1
+      with:
+        name: apk  
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }} 
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }} 
+    - name: Upload Release APK
+      id: upload_release_asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: apk/app-debug.apk
+        asset_name: AIT-BusApp.apk
+        asset_content_type: application/zip
+
       # 今回は artifact へ apk ファイルをアップロードし、ワークフローの結果画面がらダウンロードできるようにします。
       # - name: Upload apk file
       #   uses: actions/upload-artifact@v1
