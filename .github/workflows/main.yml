@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    tags: '*-ver.*'
+    tags: '*ver.*'
 
 jobs:
   test:
