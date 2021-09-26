@@ -29,7 +29,16 @@ jobs:
         with:
           java-version: 11
       - name: Build APK
-        run: bash ./gradlew assembleDebug --stacktrace
+        run: |
+            # 今回は、Secrets が設定されいなければ署名なしのapkファイルが作成されるよう判定処理をいれています。
+            # 確実に署名させたいのであれば、判定処理を外すことで署名エラーとしてしまってもよいと思います。
+            if [[ -n "${{ secrets.KEYSTORE_BASE64 }}" ]]; then
+                echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+                export KEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}"
+                export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
+                export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
+            fi
+        bash ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
