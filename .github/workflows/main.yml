@@ -38,7 +38,7 @@ jobs:
                 export KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
                 export KEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
             fi
-        bash ./gradlew assembleDebug --stacktrace
+            bash ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v1
         with:
