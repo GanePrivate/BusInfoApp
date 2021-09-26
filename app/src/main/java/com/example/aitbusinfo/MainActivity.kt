@@ -9,7 +9,6 @@ import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
 import java.time.LocalTime
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,9 +43,8 @@ class MainActivity : AppCompatActivity() {
                             label3.visibility = View.INVISIBLE
                         } else {
                             // 次の出発時刻を表示する
-                            nextTime.text = if (busInfo.toYakusaInfo.minutes != -1) "%02d:%02d".format(busInfo.toYakusaInfo.hour, busInfo.toYakusaInfo.minutes) else if (LocalTime.now().minute <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toYakusaFirst) else "本日の運行は終了しました"
+                            nextTime.text = if (busInfo.toYakusaInfo.minutes != -1) "%02d:%02d".format(busInfo.toYakusaInfo.hour, busInfo.toYakusaInfo.minutes) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toYakusaFirst) else "本日の運行は\n終了しました"
 
-                            // 次の次の出発時間を表示する
                             afterNextTime.text = if (busInfo.toYakusaAfterNext.minutes != -1) "%02d:%02d".format(busInfo.toYakusaAfterNext.hour, busInfo.toYakusaAfterNext.minutes) else "この時間の\nバスはありません"
 
                             // 今日の運行ダイヤを表示する
@@ -64,10 +62,10 @@ class MainActivity : AppCompatActivity() {
                             label3.visibility = View.INVISIBLE
                         } else {
                             // 次の出発時刻を表示する
-                            nextTime.text = if (busInfo.toDaigakuInfo.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuInfo.hour, busInfo.toDaigakuInfo.minutes) else if (LocalTime.now().minute <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toDaigakuFirst) else "本日の運行は\n終了しました"
+                            nextTime.text = if (busInfo.toDaigakuInfo.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuInfo.hour, busInfo.toDaigakuInfo.minutes) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toDaigakuFirst) else "本日の運行は\n終了しました"
 
                             // 次の次の出発時間を表示する
-                            afterNextTime.text = if (busInfo.toDaigakuAfterNext.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuAfterNext.hour, busInfo.toDaigakuAfterNext.minutes) else "本日の運行\n終了しました"
+                            afterNextTime.text = if (busInfo.toDaigakuAfterNext.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuAfterNext.hour, busInfo.toDaigakuAfterNext.minutes) else "この時間の\nバスはありません"
 
                             // 今日の運行ダイヤを表示する
                             daiya.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
