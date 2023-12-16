@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         val hnd = Handler()
 
         // ハンドラに渡す関数 (Runnable は、呼び出されたときにスレッド内で実行される run() メソッドを持つ、単一抽象メソッド（SAM）インターフェース)
-        val rnb = object : Runnable{
+        val rnb = object : Runnable {
             override fun run() {
                 // 今日のバスの運行情報を取得
                 val busInfo = getAllData()
@@ -52,9 +52,19 @@ class MainActivity : AppCompatActivity() {
                             binding.label3.visibility = View.INVISIBLE
                         } else {
                             // 次の出発時刻を表示する
-                            binding.nextTime.text = if (busInfo.toYakusaInfo.minutes != -1) "%02d:%02d".format(busInfo.toYakusaInfo.hour, busInfo.toYakusaInfo.minutes) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toYakusaFirst) else "本日の運行は\n終了しました"
+                            binding.nextTime.text =
+                                if (busInfo.toYakusaInfo.minutes != -1) "%02d:%02d".format(
+                                    busInfo.toYakusaInfo.hour,
+                                    busInfo.toYakusaInfo.minutes
+                                ) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(
+                                    busInfo.todayInfo.toYakusaFirst
+                                ) else "本日の運行は\n終了しました"
 
-                            binding.afterNextTime.text = if (busInfo.toYakusaAfterNext.minutes != -1) "%02d:%02d".format(busInfo.toYakusaAfterNext.hour, busInfo.toYakusaAfterNext.minutes) else "この時間の\nバスはありません"
+                            binding.afterNextTime.text =
+                                if (busInfo.toYakusaAfterNext.minutes != -1) "%02d:%02d".format(
+                                    busInfo.toYakusaAfterNext.hour,
+                                    busInfo.toYakusaAfterNext.minutes
+                                ) else "この時間の\nバスはありません"
 
                             // 今日の運行ダイヤを表示する
                             binding.daiya.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
@@ -71,10 +81,20 @@ class MainActivity : AppCompatActivity() {
                             binding.label3.visibility = View.INVISIBLE
                         } else {
                             // 次の出発時刻を表示する
-                            binding.nextTime.text = if (busInfo.toDaigakuInfo.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuInfo.hour, busInfo.toDaigakuInfo.minutes) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(busInfo.todayInfo.toDaigakuFirst) else "本日の運行は\n終了しました"
+                            binding.nextTime.text =
+                                if (busInfo.toDaigakuInfo.minutes != -1) "%02d:%02d".format(
+                                    busInfo.toDaigakuInfo.hour,
+                                    busInfo.toDaigakuInfo.minutes
+                                ) else if (LocalTime.now().hour <= 7) "[始発] 08:%02d".format(
+                                    busInfo.todayInfo.toDaigakuFirst
+                                ) else "本日の運行は\n終了しました"
 
                             // 次の次の出発時間を表示する
-                            binding.afterNextTime.text = if (busInfo.toDaigakuAfterNext.minutes != -1) "%02d:%02d".format(busInfo.toDaigakuAfterNext.hour, busInfo.toDaigakuAfterNext.minutes) else "この時間の\nバスはありません"
+                            binding.afterNextTime.text =
+                                if (busInfo.toDaigakuAfterNext.minutes != -1) "%02d:%02d".format(
+                                    busInfo.toDaigakuAfterNext.hour,
+                                    busInfo.toDaigakuAfterNext.minutes
+                                ) else "この時間の\nバスはありません"
 
                             // 今日の運行ダイヤを表示する
                             binding.daiya.text = "今日は${busInfo.todayInfo.daiya}ダイヤです"
@@ -83,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 // 1秒毎に実行する
-                hnd.postDelayed(this,5000)
+                hnd.postDelayed(this, 100)
             }
         }
 
@@ -91,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         hnd.post(rnb)
 
         // OnTabSelectedListenerの実装
-        tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
             // タブが選択された際に呼ばれる
             override fun onTabSelected(tab: TabLayout.Tab) {
