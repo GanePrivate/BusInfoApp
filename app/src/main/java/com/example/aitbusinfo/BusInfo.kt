@@ -1,10 +1,6 @@
 package com.example.aitbusinfo
 
 import android.util.Log
-import android.view.View
-import android.widget.TextView
-import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_main.*
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -220,3 +216,48 @@ fun getAllData(): ReturnData {
 
     return ReturnData(todayInfo, toDaigakuInfo, toYakusaInfo, toDaigakuAfterNext, toYakusaAfterNext)
 }
+
+//fun fetchData(url: String, callback: (String?, Exception?) -> Unit) {
+//    val client = OkHttpClient()
+//    val request = Request.Builder()
+//        .url(url)
+//        .build()
+//
+//    client.newCall(request).enqueue(object : Callback {
+//        override fun onResponse(call: Call, response: Response) {
+//            val jsonData = response.body?.string()
+//            // コールバックでJSONデータを返す
+//            callback(jsonData, null)
+//        }
+//
+//        override fun onFailure(call: Call, e: IOException) {
+//            // 失敗時に例外をコールバックで返す
+//            callback(null, e)
+//        }
+//    })
+//}
+
+//data class BusState(
+//    val IsFirst: Boolean,
+//    val IsExist: Boolean
+//)
+//
+//data class nextBusInfo(
+//    val schedule: String,
+//    val busState: BusState,
+//    val nextHourToAIT: Int,
+//    val nextMinuteToAIT: Int,
+//    val nextHourToYakusa: Int,
+//    val nextMinuteToYakusa: Int
+//)
+//
+//// JSON文字列をデータクラスに変換する関数
+//fun convertJsonToDataClass(jsonString: String): nextBusInfo? {
+//    return try {
+//        val gson = Gson()
+//        gson.fromJson(jsonString, nextBusInfo::class.java)
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//        null
+//    }
+//}
